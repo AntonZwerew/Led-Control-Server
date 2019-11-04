@@ -35,7 +35,7 @@ class AsyncServer:
         while chunk is not None:
             chunk = await reader.read(1024)
             request += chunk
-            print(f"Client says: #{request}")
+            print(f"Client says: {request}")
             if request:
                 return request
 
@@ -49,7 +49,7 @@ class AsyncServer:
         writer.write(response)
         await writer.drain()
         # writer.close()
-        print(f'Request #{request} has been served')
+        print(f'Request {request} has been served')
 
 
 if __name__ == '__main__':
