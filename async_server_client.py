@@ -30,11 +30,18 @@ def ensure_connection():
 
 ensure_connection()
 
+# TODO если успел сервер и были посланы данные - пересылать из после поднятиея сервера
 while True:
     request = input("request:")
     try:
         client.send(bytes(request + "\n", encoding=encoding))
         ans = client.recv(1024)
-        print(f"response: #{ans}")
+        print(f"response: {ans}")
     except ConnectionResetError or ConnectionRefusedError:
         ensure_connection()
+        if request != "":
+            client.send(bytes(request + "\n", encoding=encoding))
+            ans = client.recv(1024)
+            print(f"request: {request}")
+            print(f"response: {ans}")
+
