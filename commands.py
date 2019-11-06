@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# TODO разнести на 2 модуля
+
 ok_answer = "OK"
 fail_answer = "FAIL"
 encoding = "utf-8"
@@ -25,7 +27,7 @@ class CameraCommands(object):
             u"get-led-rate": self.get_led_rate,  # get­led­rate OK 0..5, FAILED запросить частоту ме"
         }
         self.service_commands = {
-            u"show-commands": self.get_avalible_commands,
+            u"show-commands": self.get_available_commands,
         }
 
     def operation_state(func):
@@ -40,14 +42,14 @@ class CameraCommands(object):
             return result
         return _wrapper
 
-
     # TODO get_command_params
-    def get_avalible_commands(self):
+
+    def get_available_commands(self):
         ans = ""
-        ans += "Service commands: "
+        # ans += "Service commands: "
         for command in self.service_commands:
             ans += command + ", "
-        ans += "Device commands: "
+        # ans += "Device commands: "
         for command in self.device_commands:
             ans += command + ", "
         self.last_operation_successful = True
@@ -57,7 +59,7 @@ class CameraCommands(object):
         text_command, args = self.parse_command_args(request)
         command = self.get_command_by_request(text_command)
         if command is None:
-            help_command_name = str(get_key(self.service_commands, self.get_avalible_commands))
+            help_command_name = str(get_key(self.service_commands, self.get_available_commands))
             result = f"Unknown command, use {help_command_name} for list of commands"  # TODO unknown argument
         else:
             result = command(*args)
@@ -90,7 +92,7 @@ class CameraCommands(object):
 
     def get_command_by_request(self, request):
         command = None
-        commands = {**self.service_commands, **self.service_commands}
+        commands = {**self.service_commands, **self.device_commands}
         for server_command in commands:
             if request == server_command:  # TODO request может приехать в другой кодировке
                 command = commands.get(request)
