@@ -25,6 +25,7 @@ class AsyncServer:
                 break
             if request is None:
                 print('Client unexpectedly disconnected')
+                break
             else:
                 response = await self.handle_request(request)
                 await self.write_response(writer, request, response)
@@ -36,6 +37,8 @@ class AsyncServer:
             chunk = await reader.read(1024)
             request += chunk
             print(f"Client says: {request}")
+            if not chunk:
+                break
             if request:
                 return request
 
