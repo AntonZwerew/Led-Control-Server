@@ -133,7 +133,6 @@ if use_gui:
     create_interface()
     sys.exit(0)
 
-# TODO если упал сервер и были посланы данные - пересылать из после поднятиея сервера
 while True:
     request = input("request:")
     try:
