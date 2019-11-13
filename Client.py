@@ -56,7 +56,7 @@ def create_interface():
     log_frame.pack()
     log.pack()
     args_entry.pack()
-    exit_button = Button(root, text="EXI")
+    exit_button = Button(root, text="EXIT")
     command_buttons = []
 
     def run_button_command(event):
