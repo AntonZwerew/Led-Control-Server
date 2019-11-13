@@ -12,6 +12,9 @@ server_addr = 'localhost'
 get_command_args = "get-args"
 server_port = 7777
 use_gui = False
+client = None
+connected = False
+
 
 try:
     options, args = getopt.getopt(sys.argv[1:], 'hs:p:g', ['help', 'serv=', 'port=', 'gui'])
@@ -133,5 +136,15 @@ if use_gui:
 # TODO если упал сервер и были посланы данные - пересылать из после поднятиея сервера
 while True:
     request = input("request:")
-    print(f"response: {run_request(request)}")
+    try:
+        client.send(bytes(request + "\n", encoding=encoding))
+        ans = client.recv(1024)
+        print(f"response: {str(ans, encoding=encoding)}")
+    except ConnectionResetError or ConnectionRefusedError:
+        ensure_connection()
+        if request != "":
+            client.send(bytes(request + "\n", encoding=encoding))
+            ans = client.recv(1024)
+            print(f"request: {request}")
+            print(f"response: {str(ans, encoding=encoding)}")
 
