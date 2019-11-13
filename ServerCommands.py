@@ -51,9 +51,9 @@ class ServerCommands(object):
         self.drv = drv
         self.device_commands = device_commands
         self.help_command = Command(
-            name='get-available-commands',
+            name='get-commands',
             command=self.get_available_commands,
-            caption="",
+            caption="shows available commands",
             valid_args=[],
             args_check_func=no_args,
         )
@@ -64,33 +64,55 @@ class ServerCommands(object):
             valid_args=None,
             args_check_func=str_arg_in_array_of_valid,
         )
+        self.get_caption_command = Command(
+            name="get-caption",
+            command=self.get_caption_by_command,
+            caption="shows caption of command",
+            valid_args=None,
+            args_check_func=str_arg_in_array_of_valid,
+        )
         self.service_commands = [
             self.help_command,
             self.get_args_command,
+            self.get_caption_command,
         ]
-        self.get_args_command.valid_args = [command.name for command in (self.device_commands + self.service_commands)]
+        self.get_args_command.valid_args = [[command.name for command in (self.device_commands +
+                                                                          self.service_commands)]]
+        self.get_caption_command.valid_args = [[command.name for command in (self.device_commands +
+                                                                             self.service_commands)]]
 
     def get_available_commands(self):
         ans = ""
-        ans += "Service commands: "
         for command in self.service_commands:
             ans += command.name + ", "
-        ans += "Device commands: "
         for command in self.device_commands:
             ans += command.name + ", "
         return ans[:-2]  # убираем ", "
 
     def get_args_by_command(self, command):
-        result = f"Avalible args of {command}: "
+        result = f"Available args of {command}: "
         commands = self.device_commands + self.service_commands
         command = get_command_by_name(commands, command)
         if command:
             if not command.valid_args:
-                return result + "None \n"
+                return result + "None"
             for arg in command.valid_args:
                 if arg:
                     result += str(arg)
-            return result + "\n"
+            return result
+        else:
+            return None
+
+    def get_caption_by_command(self, command):
+        result = f"Caption of {command}: "
+        commands = self.device_commands + self.service_commands
+        command = get_command_by_name(commands, command)
+        if command:
+            if not command.caption:
+                return result + "None"
+            else:
+                result += command.caption
+            return result
         else:
             return None
 
@@ -98,12 +120,15 @@ class ServerCommands(object):
         text_command, args = self.parse_command_args(request)
         command = self.get_command_by_request(text_command)
         if command is None:
-            result = f"Unknown command, use {self.help_command.name} for list of commands"  # TODO unknown argument
+            result = f"Unknown command, use {self.help_command.name} for list of commands"
             response = fail_answer
         else:
             try:
                 result = command.run(*args)
-                response = self.get_answer()
+                if command not in self.service_commands:
+                    response = self.get_answer()
+                else:
+                    response = ok_answer
             except Exception as e:
                 result = e
                 response = fail_answer
@@ -114,7 +139,7 @@ class ServerCommands(object):
     def get_answer(self):
         global ok_answer
         global fail_answer
-        if self.drv.last_operation_successful:  # TODO if wrong argument
+        if self.drv.last_operation_successful:
             return ok_answer
         else:
             return fail_answer

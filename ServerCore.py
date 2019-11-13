@@ -36,7 +36,7 @@ class AsyncServer:
         while chunk is not None:
             chunk = await reader.read(1024)
             request += chunk
-            print(f"Client says: {request}")
+            print(f"Client says: {str(request, encoding=encoding)}")
             if not chunk:
                 break
             if request:
